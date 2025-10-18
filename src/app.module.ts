@@ -10,6 +10,7 @@ import { UserPolling } from './modules/user-polling/models/user-polling.entity';
 import { PollingOptionModule } from './modules/polling-option/polling-option.module';
 import { PollingModule } from './modules/polling/polling.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { ChatGateway } from './modules/chat/chat.gateaway';
 
 @Module({
   providers: [
@@ -40,6 +41,7 @@ import { AuthModule } from './modules/auth/auth.module';
     AuthModule,
     PollingModule,
     PollingOptionModule,
+    ChatGateway,
   ],
 })
 export class AppModule {}
