@@ -19,7 +19,7 @@ export interface IUserPolling {
   pollingOptionId: number;
 }
 
-@Entity('user_polling')
+@Entity('user_pollings')
 export class UserPolling implements IUserPolling {
   @PrimaryGeneratedColumn()
   id: number;

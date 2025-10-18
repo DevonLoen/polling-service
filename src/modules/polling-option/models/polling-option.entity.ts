@@ -22,7 +22,7 @@ export interface IPollingOption {
   userPolling: UserPolling[];
 }
 
-@Entity('pollings')
+@Entity('polling_options')
 export class PollingOption implements IPollingOption {
   @PrimaryGeneratedColumn()
   id: number;
