@@ -12,13 +12,13 @@ export class SuperAdminGuard implements CanActivate {
   // constructor(private readonly userRoleService: UserRoleService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request: RequestUser = context.switchToHttp().getRequest();
-    const roles = request.user.roles;
-    if (roles != UserRoleEnum.ADMIN) {
-      throw new UnauthorizedException(
-        `Access Denied - Missing Permissions. Admin`,
-      );
-    }
+    // const request: RequestUser = context.switchToHttp().getRequest();
+    // const roles = request.user.roles;
+    // if (roles != UserRoleEnum.ADMIN) {
+    //   throw new UnauthorizedException(
+    //     `Access Denied - Missing Permissions. Admin`,
+    //   );
+    // }
     return true;
   }
 }

@@ -34,6 +34,7 @@
     "joi": "^17.13.3",
     "joi-class-decorators": "^1.1.2",
     "multer": "^2.0.2",
+    "nanoid": "^5.1.6",
     "passport-jwt": "^4.0.1",
     "pg": "^8.16.3",
     "reflect-metadata": "^0.1.14",

@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Generated,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -10,6 +11,7 @@ import {
 
 export interface IPolling {
   id: number;
+  title: string;
   question: string;
   link: string;
   expiredAt: Date;
@@ -23,10 +25,16 @@ export class Polling implements IPolling {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ type: 'varchar', unique: true })
+  code: string;
+
+  @Column({ type: 'varchar' })
+  title: string;
+
   @Column({ type: 'varchar' })
   question: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   link: string;
 
   @Column({ type: 'timestamp', name: 'expired_at' })

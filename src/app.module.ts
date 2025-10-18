@@ -7,6 +7,9 @@ import { ExceptionHandlerFilter } from './filters/exception-handler.filter';
 import { PollingOption } from './modules/polling-option/models/polling-option.entity';
 import { Polling } from './modules/polling/models/polling.entity';
 import { UserPolling } from './modules/user-polling/models/user-polling.entity';
+import { PollingOptionModule } from './modules/polling-option/polling-option.module';
+import { PollingModule } from './modules/polling/polling.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   providers: [
@@ -34,6 +37,9 @@ import { UserPolling } from './modules/user-polling/models/user-polling.entity';
       //   ? { rejectUnauthorized: false }
       //   : false,
     }),
+    AuthModule,
+    PollingModule,
+    PollingOptionModule,
   ],
 })
 export class AppModule {}
