@@ -10,7 +10,8 @@ import { UserPolling } from './modules/user-polling/models/user-polling.entity';
 import { PollingOptionModule } from './modules/polling-option/polling-option.module';
 import { PollingModule } from './modules/polling/polling.module';
 import { AuthModule } from './modules/auth/auth.module';
-import { ChatGateway } from './modules/chat/chat.gateaway';
+import { PollingGatewayModule } from './modules/polling_gateway/polling-gateway.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   providers: [
@@ -33,15 +34,12 @@ import { ChatGateway } from './modules/chat/chat.gateaway';
       extra: {
         timezone: process.env.DB_TIMEZONE || 'Asia/Jakarta',
       },
-      // Opsional: tambahkan ini jika database Anda (mis. di cloud) butuh SSL
-      // ssl: process.env.DB_SSL === 'true'
-      //   ? { rejectUnauthorized: false }
-      //   : false,
     }),
     AuthModule,
     PollingModule,
     PollingOptionModule,
-    ChatGateway,
+    PollingGatewayModule,
+    EventEmitterModule.forRoot(),
   ],
 })
 export class AppModule {}

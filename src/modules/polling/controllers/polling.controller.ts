@@ -9,7 +9,6 @@ import {
 import { ApiTag } from '@app/enums/api-tags';
 import {
   ApiBearerAuth,
-  ApiOkResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
