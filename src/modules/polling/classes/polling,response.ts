@@ -1,5 +1,4 @@
 import { BaseApiResponse } from '@app/commons/responses/base-response.dto';
-import { StatusResponse } from '@app/enums/status-response';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class PollingOptionResponse {
@@ -52,4 +51,30 @@ export class createPollingDataResponse {
 export class createPollingResponse extends BaseApiResponse {
   @ApiProperty({ type: createPollingDataResponse })
   data: createPollingDataResponse;
+}
+
+export class PollingVoteData {
+  @ApiProperty({
+    example: 100,
+    description: 'Total Vote for the Polling Option',
+  })
+  totalVote: number;
+
+  @ApiProperty({
+    example: 1,
+    description: 'Id of the Polling Option',
+  })
+  pollingOptionId: number;
+
+  @ApiProperty({
+    example: 'Donald J Trump',
+    description: 'Polling Option',
+  })
+  pollingOption: string;
+
+  @ApiProperty({
+    example: 'Business Man',
+    description: 'Polling Option Description',
+  })
+  pollingDesc: string;
 }

@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Get,
   HttpStatus,
+  Param,
   Post,
   UseGuards,
   UseInterceptors,
@@ -19,6 +21,7 @@ import { TransformResponseInterceptor } from '@app/interceptors/transform-respon
 import {
   createPollingDataResponse,
   createPollingResponse,
+  PollingVoteData,
 } from '../classes/polling,response';
 import { JwtPayload } from '@app/interfaces/jwt-payload.interface';
 import { CurrentUser } from '@app/decorators/current-user.decorator';
@@ -60,6 +63,23 @@ Creates a new polling with its associated options.
       currentUser.id,
     );
 
+    return poll;
+  }
+
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: PollingVoteData,
+  })
+  @ApiOperation({
+    summary: 'Get Polling Vote Data by Polling Code',
+  })
+  @UseInterceptors(TransformResponseInterceptor)
+  @Get(':id')
+  async getPollingVoteDataById(
+    @Param('id') pollingCode: string,
+  ): Promise<PollingVoteData[]> {
+    const poll =
+      await this.pollingService.getPollingVoteDataByCode(pollingCode);
     return poll;
   }
 }

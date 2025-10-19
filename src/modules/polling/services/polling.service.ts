@@ -4,7 +4,10 @@ import { Polling } from '../models/polling.entity';
 import { EntityManager, Repository } from 'typeorm';
 import { PollingOptionService } from '@app/modules/polling-option/services/polling-option.service';
 import { CreatePollingDto } from '../dtos/create-polling.dto';
-import { createPollingDataResponse } from '../classes/polling,response';
+import {
+  createPollingDataResponse,
+  PollingVoteData,
+} from '../classes/polling,response';
 import { PollingOption } from '@app/modules/polling-option/models/polling-option.entity';
 import { customAlphabet } from 'nanoid';
 
@@ -96,5 +99,26 @@ export class PollingService {
       throw new NotFoundException(`Polling not found with that id ${id}`);
     }
     return polling;
+  }
+
+  async getPollingVoteDataByCode(
+    pollingCode: string,
+  ): Promise<PollingVoteData[]> {
+    const query = `
+    select
+      count(*) filter (where up.id is not null) totalVote,
+      po.id pollingOptionId,
+      min(po.option) pollingOption,
+      min(po.desc) pollingDesc
+    from pollings p 
+    inner join polling_options po on po.polling_id = p.id
+    left join user_pollings up on up.polling_option_id = po.id
+    where p.code = $1
+    group by po.id;
+    `;
+    const pollingVoteData = await this.pollingRepository.query<
+      PollingVoteData[]
+    >(query, [pollingCode]);
+    return pollingVoteData;
   }
 }

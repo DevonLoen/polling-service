@@ -15,6 +15,7 @@ import { SubmitPollingDto } from './dtos/submit-polling.dto';
 import { getClassSchema } from 'joi-class-decorators';
 import { WsExceptionsHandlerFilter } from '@app/filters/websocket-handler.filter';
 import { WsValidationException } from '@app/exceptions/validation.exception';
+import { PollingService } from '../polling/services/polling.service';
 
 @WebSocketGateway({ cors: { origin: '*' } })
 @UseFilters(WsExceptionsHandlerFilter)
@@ -23,7 +24,10 @@ export class PollingGateway
 {
   @WebSocketServer()
   server: Server;
-  constructor(private readonly rabbitMQService: RabbitMQService) {}
+  constructor(
+    private readonly rabbitMQService: RabbitMQService,
+    private readonly pollingService: PollingService,
+  ) {}
 
   private logger: Logger = new Logger('ChatGateway');
 
@@ -35,7 +39,7 @@ export class PollingGateway
     this.logger.log(`🔴 Client disconnected: ${client.id}`);
   }
 
-  @SubscribeMessage('joinRoom')
+  @SubscribeMessage('polling:join')
   async handleJoinRoom(
     @MessageBody() roomCode: string,
     @ConnectedSocket() clientSocket: Socket,
@@ -50,7 +54,7 @@ export class PollingGateway
     );
   }
 
-  @SubscribeMessage('pesanKeRoom')
+  @SubscribeMessage('polling:submit')
   handleMessageRoom(
     @MessageBody() data: SubmitPollingDto,
     @ConnectedSocket() client: Socket,
