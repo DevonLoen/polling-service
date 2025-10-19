@@ -78,3 +78,10 @@ export class PollingVoteData {
   })
   pollingDesc: string;
 }
+export class MyPollingChoice {
+  @ApiProperty({
+    example: 1,
+    description: 'Id of the Polling Option',
+  })
+  pollingOptionId: number;
+}

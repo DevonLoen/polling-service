@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Polling } from '../models/polling.entity';
 import { EntityManager, Repository } from 'typeorm';
@@ -6,6 +11,7 @@ import { PollingOptionService } from '@app/modules/polling-option/services/polli
 import { CreatePollingDto } from '../dtos/create-polling.dto';
 import {
   createPollingDataResponse,
+  MyPollingChoice,
   PollingVoteData,
 } from '../classes/polling,response';
 import { PollingOption } from '@app/modules/polling-option/models/polling-option.entity';
@@ -13,6 +19,8 @@ import { customAlphabet } from 'nanoid';
 
 @Injectable()
 export class PollingService {
+  private logger: Logger = new Logger('Polling');
+
   constructor(
     @InjectRepository(Polling)
     private pollingRepository: Repository<Polling>,
@@ -120,5 +128,31 @@ export class PollingService {
       PollingVoteData[]
     >(query, [pollingCode]);
     return pollingVoteData;
+  }
+
+  async getMyPollingChoiceByCode(
+    pollingCode: string,
+    userId: number,
+  ): Promise<MyPollingChoice> {
+    const query = `
+    select
+      up.polling_option_id pollingOptionId
+    from pollings p 
+    inner join polling_options po on po.polling_id = p.id
+    inner join user_pollings up on up.polling_option_id = po.id
+    where p.code = $1 and up.user_id = $2
+    `;
+    const myPollingChoice = await this.pollingRepository.query<
+      MyPollingChoice[]
+    >(query, [pollingCode, userId]);
+    if (myPollingChoice.length > 1) {
+      this.logger.error(
+        `Data integrity issue: User ${userId} has multiple votes for polling code ${pollingCode}.`,
+      );
+      throw new InternalServerErrorException(
+        'An inconsistent data state was detected.',
+      );
+    }
+    return myPollingChoice[0] ?? null;
   }
 }
