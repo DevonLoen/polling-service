@@ -11,7 +11,6 @@ import amqp, {
   ChannelWrapper,
 } from 'amqp-connection-manager';
 import { Channel, ConsumeMessage } from 'amqplib';
-import { SubmitPollingDto } from './dtos/submit-polling.dto';
 @Injectable()
 export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(RabbitMQService.name);
@@ -59,12 +58,10 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       });
       await channel.bindQueue(q.queue, this.exchangeName, '');
       await channel.consume(q.queue, (data: ConsumeMessage) => {
-        const asd = JSON.parse(
-          Buffer.from(data.content).toString(),
-        ) as SubmitPollingDto & {
-          id: string;
-        };
-        this.eventEmitter.emit('message.received', asd);
+        this.eventEmitter.emit(
+          'message.received',
+          JSON.parse(Buffer.from(data.content).toString()),
+        );
       });
     });
   }

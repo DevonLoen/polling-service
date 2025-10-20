@@ -10,7 +10,7 @@ import { EntityManager, Repository } from 'typeorm';
 import { PollingOptionService } from '@app/modules/polling-option/services/polling-option.service';
 import { CreatePollingDto } from '../dtos/create-polling.dto';
 import {
-  createPollingDataResponse,
+  CreatePollingDataResponse,
   MyPollingChoice,
   PollingVoteData,
 } from '../classes/polling,response';
@@ -37,10 +37,10 @@ export class PollingService {
   async createPolling(
     dto: CreatePollingDto,
     userId: number,
-  ): Promise<createPollingDataResponse> {
+  ): Promise<CreatePollingDataResponse> {
     const { title, question, expiredAt, pollingOption } = dto;
 
-    const transaction: createPollingDataResponse =
+    const transaction: CreatePollingDataResponse =
       await this.pollingRepository.manager.transaction(
         async (entityManager: EntityManager) => {
           const createdPoll = entityManager.create(Polling, {
@@ -77,7 +77,7 @@ export class PollingService {
               `Polling not found with that id ${poll.id}`,
             );
           }
-          const response: createPollingDataResponse = {
+          const response: CreatePollingDataResponse = {
             id: poll.id,
             title: poll.title,
             question: poll.question,

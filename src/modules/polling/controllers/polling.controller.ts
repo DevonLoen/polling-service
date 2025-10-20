@@ -19,7 +19,7 @@ import { AuthenticateGuard } from '@app/guards/authenticate.guard';
 import { PollingService } from '../services/polling.service';
 import { TransformResponseInterceptor } from '@app/interceptors/transform-response.interceptor';
 import {
-  createPollingDataResponse,
+  CreatePollingDataResponse,
   createPollingResponse,
   MyPollingChoice,
   PollingVoteData,
@@ -58,7 +58,7 @@ Creates a new polling with its associated options.
     @CurrentUser() currentUser: JwtPayload,
     @Body()
     createPollingDto: CreatePollingDto,
-  ): Promise<createPollingDataResponse> {
+  ): Promise<CreatePollingDataResponse> {
     const poll = await this.pollingService.createPolling(
       createPollingDto,
       currentUser.id,

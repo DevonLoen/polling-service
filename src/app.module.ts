@@ -12,6 +12,8 @@ import { PollingModule } from './modules/polling/polling.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { PollingGatewayModule } from './modules/polling_gateway/polling-gateway.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { UserPollingModule } from './modules/user-polling/user-polling.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   providers: [
@@ -39,6 +41,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     PollingModule,
     PollingOptionModule,
     PollingGatewayModule,
+    UserPollingModule,
+    JwtModule.register({ global: true, secret: process.env.JWT_SECRET }),
     EventEmitterModule.forRoot(),
   ],
 })

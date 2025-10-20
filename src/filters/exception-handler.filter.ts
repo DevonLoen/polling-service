@@ -78,7 +78,6 @@ export class ExceptionHandlerFilter implements ExceptionFilter {
         if (nodeEnv === 'production') {
           // getRollbarInstance().error(exception);
         }
-        console.log('haaaa');
         if (!(exception instanceof InternalServerErrorException)) {
           exception = new InternalServerErrorException(exception.message);
         }

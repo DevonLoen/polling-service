@@ -18,7 +18,7 @@ export class PollingOptionResponse {
   desc: string;
 }
 
-export class createPollingDataResponse {
+export class CreatePollingDataResponse {
   @ApiProperty({
     example: 1,
   })
@@ -49,8 +49,8 @@ export class createPollingDataResponse {
 }
 
 export class createPollingResponse extends BaseApiResponse {
-  @ApiProperty({ type: createPollingDataResponse })
-  data: createPollingDataResponse;
+  @ApiProperty({ type: CreatePollingDataResponse })
+  data: CreatePollingDataResponse;
 }
 
 export class PollingVoteData {
