@@ -10,6 +10,10 @@ import { UserPolling } from './modules/user-polling/models/user-polling.entity';
 import { PollingOptionModule } from './modules/polling-option/polling-option.module';
 import { PollingModule } from './modules/polling/polling.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { PollingGatewayModule } from './modules/polling_gateway/polling-gateway.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { UserPollingModule } from './modules/user-polling/user-polling.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   providers: [
@@ -32,14 +36,14 @@ import { AuthModule } from './modules/auth/auth.module';
       extra: {
         timezone: process.env.DB_TIMEZONE || 'Asia/Jakarta',
       },
-      // Opsional: tambahkan ini jika database Anda (mis. di cloud) butuh SSL
-      // ssl: process.env.DB_SSL === 'true'
-      //   ? { rejectUnauthorized: false }
-      //   : false,
     }),
     AuthModule,
     PollingModule,
     PollingOptionModule,
+    PollingGatewayModule,
+    UserPollingModule,
+    JwtModule.register({ global: true, secret: process.env.JWT_SECRET }),
+    EventEmitterModule.forRoot(),
   ],
 })
 export class AppModule {}

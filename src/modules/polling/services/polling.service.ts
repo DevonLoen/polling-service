@@ -1,15 +1,26 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Polling } from '../models/polling.entity';
 import { EntityManager, Repository } from 'typeorm';
 import { PollingOptionService } from '@app/modules/polling-option/services/polling-option.service';
 import { CreatePollingDto } from '../dtos/create-polling.dto';
-import { createPollingDataResponse } from '../classes/polling,response';
+import {
+  CreatePollingDataResponse,
+  MyPollingChoice,
+  PollingVoteData,
+} from '../classes/polling,response';
 import { PollingOption } from '@app/modules/polling-option/models/polling-option.entity';
 import { customAlphabet } from 'nanoid';
 
 @Injectable()
 export class PollingService {
+  private logger: Logger = new Logger('Polling');
+
   constructor(
     @InjectRepository(Polling)
     private pollingRepository: Repository<Polling>,
@@ -26,10 +37,10 @@ export class PollingService {
   async createPolling(
     dto: CreatePollingDto,
     userId: number,
-  ): Promise<createPollingDataResponse> {
+  ): Promise<CreatePollingDataResponse> {
     const { title, question, expiredAt, pollingOption } = dto;
 
-    const transaction: createPollingDataResponse =
+    const transaction: CreatePollingDataResponse =
       await this.pollingRepository.manager.transaction(
         async (entityManager: EntityManager) => {
           const createdPoll = entityManager.create(Polling, {
@@ -66,7 +77,7 @@ export class PollingService {
               `Polling not found with that id ${poll.id}`,
             );
           }
-          const response: createPollingDataResponse = {
+          const response: CreatePollingDataResponse = {
             id: poll.id,
             title: poll.title,
             question: poll.question,
@@ -96,5 +107,52 @@ export class PollingService {
       throw new NotFoundException(`Polling not found with that id ${id}`);
     }
     return polling;
+  }
+
+  async getPollingVoteDataByCode(
+    pollingCode: string,
+  ): Promise<PollingVoteData[]> {
+    const query = `
+    select
+      count(*) filter (where up.id is not null) totalVote,
+      po.id pollingOptionId,
+      min(po.option) pollingOption,
+      min(po.desc) pollingDesc
+    from pollings p 
+    inner join polling_options po on po.polling_id = p.id
+    left join user_pollings up on up.polling_option_id = po.id
+    where p.code = $1
+    group by po.id;
+    `;
+    const pollingVoteData = await this.pollingRepository.query<
+      PollingVoteData[]
+    >(query, [pollingCode]);
+    return pollingVoteData;
+  }
+
+  async getMyPollingChoiceByCode(
+    pollingCode: string,
+    userId: number,
+  ): Promise<MyPollingChoice> {
+    const query = `
+    select
+      up.polling_option_id pollingOptionId
+    from pollings p 
+    inner join polling_options po on po.polling_id = p.id
+    inner join user_pollings up on up.polling_option_id = po.id
+    where p.code = $1 and up.user_id = $2
+    `;
+    const myPollingChoice = await this.pollingRepository.query<
+      MyPollingChoice[]
+    >(query, [pollingCode, userId]);
+    if (myPollingChoice.length > 1) {
+      this.logger.error(
+        `Data integrity issue: User ${userId} has multiple votes for polling code ${pollingCode}.`,
+      );
+      throw new InternalServerErrorException(
+        'An inconsistent data state was detected.',
+      );
+    }
+    return myPollingChoice[0] ?? null;
   }
 }

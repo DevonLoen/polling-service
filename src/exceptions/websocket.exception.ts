@@ -1,10 +1,12 @@
 import { WsException } from '@nestjs/websockets';
-export class ValidationException extends Error {
+
+export class WsNotFoundException extends WsException {
   constructor(message: string) {
     super(message);
   }
 }
-export class WsValidationException extends WsException {
+
+export class WsConflictException extends WsException {
   constructor(message: string) {
     super(message);
   }

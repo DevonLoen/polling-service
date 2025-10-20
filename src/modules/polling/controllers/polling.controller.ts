@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Get,
   HttpStatus,
+  Param,
   Post,
   UseGuards,
   UseInterceptors,
@@ -9,7 +11,6 @@ import {
 import { ApiTag } from '@app/enums/api-tags';
 import {
   ApiBearerAuth,
-  ApiOkResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -18,8 +19,10 @@ import { AuthenticateGuard } from '@app/guards/authenticate.guard';
 import { PollingService } from '../services/polling.service';
 import { TransformResponseInterceptor } from '@app/interceptors/transform-response.interceptor';
 import {
-  createPollingDataResponse,
+  CreatePollingDataResponse,
   createPollingResponse,
+  MyPollingChoice,
+  PollingVoteData,
 } from '../classes/polling,response';
 import { JwtPayload } from '@app/interfaces/jwt-payload.interface';
 import { CurrentUser } from '@app/decorators/current-user.decorator';
@@ -55,12 +58,50 @@ Creates a new polling with its associated options.
     @CurrentUser() currentUser: JwtPayload,
     @Body()
     createPollingDto: CreatePollingDto,
-  ): Promise<createPollingDataResponse> {
+  ): Promise<CreatePollingDataResponse> {
     const poll = await this.pollingService.createPolling(
       createPollingDto,
       currentUser.id,
     );
 
+    return poll;
+  }
+
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: PollingVoteData,
+  })
+  @ApiOperation({
+    summary: 'Get Polling Vote Data by Polling Code',
+  })
+  @UseInterceptors(TransformResponseInterceptor)
+  @Get('data/:code')
+  async getPollingVoteDataById(
+    @Param('code') pollingCode: string,
+  ): Promise<PollingVoteData[]> {
+    const poll =
+      await this.pollingService.getPollingVoteDataByCode(pollingCode);
+    return poll;
+  }
+
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: PollingVoteData,
+  })
+  @ApiOperation({
+    summary: 'Get My Polling Choice by Polling Code',
+  })
+  @UseGuards(AuthenticateGuard)
+  @Get('my-choice/:code')
+  async getMyPollingChoiceByCode(
+    @Param('code') pollingCode: string,
+    @CurrentUser() currentUser: JwtPayload,
+  ): Promise<MyPollingChoice> {
+    const poll = await this.pollingService.getMyPollingChoiceByCode(
+      pollingCode,
+      currentUser.id,
+    );
     return poll;
   }
 }

@@ -1,10 +1,9 @@
-import { Global, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PollingService } from './services/polling.service';
 import { Polling } from './models/polling.entity';
 import { PollingController } from './controllers/polling.controller';
 
-@Global()
 @Module({
   imports: [TypeOrmModule.forFeature([Polling])],
   providers: [PollingService],

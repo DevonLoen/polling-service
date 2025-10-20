@@ -1,9 +1,9 @@
 import { PollingOption } from '@app/modules/polling-option/models/polling-option.entity';
-import { Polling } from '@app/modules/polling/models/polling.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -20,6 +20,9 @@ export interface IUserPolling {
 }
 
 @Entity('user_pollings')
+@Index('UQ_user_polling_choice', ['userId', 'pollingOptionId'], {
+  unique: true,
+})
 export class UserPolling implements IUserPolling {
   @PrimaryGeneratedColumn()
   id: number;
