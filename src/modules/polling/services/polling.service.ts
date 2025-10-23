@@ -51,9 +51,8 @@ export class PollingService {
             userId,
           });
 
-          const link = `${this.FrontEndBaseUrl}/${createdPoll.code}`;
-
           const code = this.nanoid();
+          const link = `${this.FrontEndBaseUrl}/${code}`;
 
           createdPoll.link = link;
           createdPoll.code = code;
