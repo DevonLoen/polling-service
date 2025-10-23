@@ -21,6 +21,7 @@ import { TransformResponseInterceptor } from '@app/interceptors/transform-respon
 import {
   CreatePollingDataResponse,
   createPollingResponse,
+  GetMyPollingsResponse,
   MyPollingChoice,
   PollingVoteData,
 } from '../classes/polling,response';
@@ -103,5 +104,24 @@ Creates a new polling with its associated options.
       currentUser.id,
     );
     return poll;
+  }
+
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: GetMyPollingsResponse,
+  })
+  @ApiOperation({
+    summary: 'Get My Pollings',
+    description: '',
+  })
+  @UseInterceptors(TransformResponseInterceptor)
+  @UseGuards(AuthenticateGuard)
+  @Get('my-pollings')
+  async getMyPollings(
+    @CurrentUser() currentUser: JwtPayload,
+  ): Promise<CreatePollingDataResponse[]> {
+    const myPollings = await this.pollingService.getMyPollings(currentUser.id);
+    return myPollings;
   }
 }

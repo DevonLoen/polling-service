@@ -85,3 +85,8 @@ export class MyPollingChoice {
   })
   pollingOptionId: number;
 }
+
+export class GetMyPollingsResponse extends BaseApiResponse {
+  @ApiProperty({ type: CreatePollingDataResponse, isArray: true })
+  data: CreatePollingDataResponse[];
+}

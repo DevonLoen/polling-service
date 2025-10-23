@@ -16,6 +16,7 @@ import {
 } from '../classes/polling,response';
 import { PollingOption } from '@app/modules/polling-option/models/polling-option.entity';
 import { customAlphabet } from 'nanoid';
+import { JwtPayload } from '@app/interfaces/jwt-payload.interface';
 
 @Injectable()
 export class PollingService {
@@ -154,5 +155,26 @@ export class PollingService {
       );
     }
     return myPollingChoice[0] ?? null;
+  }
+
+  async getMyPollings(userId: number): Promise<CreatePollingDataResponse[]> {
+    const myPollings = await this.pollingRepository.find({
+      where: { userId },
+      relations: ['pollingOption'],
+      order: { id: 'DESC' },
+    });
+
+    return myPollings.map((poll: Polling) => ({
+      id: poll.id,
+      title: poll.title,
+      question: poll.question,
+      link: poll.link,
+      expiredAt: poll.expiredAt,
+      pollingOption: (poll.pollingOption || []).map((opt: PollingOption) => ({
+        id: opt.id,
+        option: opt.option,
+        desc: opt.desc,
+      })),
+    }));
   }
 }
