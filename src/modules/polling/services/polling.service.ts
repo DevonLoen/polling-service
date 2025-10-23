@@ -84,6 +84,7 @@ export class PollingService {
             question: poll.question,
             link: poll.link,
             expiredAt: poll.expiredAt,
+            code: poll.code,
             pollingOption: poll.pollingOption.map((opt: PollingOption) => ({
               id: opt.id,
               option: opt.option,
@@ -169,6 +170,7 @@ export class PollingService {
       title: poll.title,
       question: poll.question,
       link: poll.link,
+      code: poll.code,
       expiredAt: poll.expiredAt,
       pollingOption: (poll.pollingOption || []).map((opt: PollingOption) => ({
         id: opt.id,

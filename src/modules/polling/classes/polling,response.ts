@@ -40,6 +40,11 @@ export class CreatePollingDataResponse {
   link: string;
 
   @ApiProperty({
+    example: '"46V1PXGTPV"',
+  })
+  code: string;
+
+  @ApiProperty({
     example: '',
   })
   expiredAt: Date;
