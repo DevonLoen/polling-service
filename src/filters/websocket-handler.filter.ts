@@ -1,6 +1,7 @@
 import { WsValidationException } from '@app/exceptions/validation.exception';
 import {
   WsConflictException,
+  WsGoneException,
   WsNotFoundException,
 } from '@app/exceptions/websocket.exception';
 import {
@@ -35,6 +36,10 @@ export class WsExceptionsHandlerFilter extends BaseWsExceptionFilter {
 
         case WsConflictException:
           this.sendErrorResponse(client, HttpStatus.CONFLICT, message); // 409
+          break;
+
+        case WsGoneException:
+          this.sendErrorResponse(client, HttpStatus.GONE, message); // 410
           break;
 
         default:

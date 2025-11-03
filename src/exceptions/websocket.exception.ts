@@ -11,3 +11,9 @@ export class WsConflictException extends WsException {
     super(message);
   }
 }
+
+export class WsGoneException extends WsException {
+  constructor(message: string) {
+    super(message);
+  }
+}

@@ -18,7 +18,10 @@ import { WsValidationException } from '@app/exceptions/validation.exception';
 import { PollingService } from '../polling/services/polling.service';
 import { UserPollingService } from '../user-polling/services/user-polling.service';
 import { CreateUserPollingDto } from '../user-polling/dtos/create-user-polling.dto';
-import { WsNotFoundException } from '@app/exceptions/websocket.exception';
+import {
+  WsGoneException,
+  WsNotFoundException,
+} from '@app/exceptions/websocket.exception';
 import { WsJwtGuard } from '@app/guards/websocket-auth.guard';
 import { AuthenticatedSocket } from '@app/interfaces/authenticated-socket.interface';
 
@@ -56,6 +59,13 @@ export class PollingGateway
     if (pollingData.length === 0) {
       throw new WsNotFoundException('Room Code Not Found');
     }
+
+    const room = await this.pollingService.findPollingByCode(roomCode);
+
+    // Cek jika waktu kedaluwarsa SUDAH LEWAT
+    if (room.expiredAt < new Date())
+      throw new WsGoneException('Room has expired');
+
     await clientSocket.join(roomCode);
 
     this.logger.log(`Client ${clientSocket.id} joined room: ${roomCode}`);
@@ -92,6 +102,7 @@ export class PollingGateway
     const pollingData = await this.pollingService.getPollingVoteDataByCode(
       payload.room,
     );
+
     if (pollingData.length === 0) {
       throw new WsNotFoundException('Room Code Not Found');
     }
