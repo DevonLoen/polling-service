@@ -63,8 +63,9 @@ export class PollingGateway
     const room = await this.pollingService.findPollingByCode(roomCode);
 
     // Cek jika waktu kedaluwarsa SUDAH LEWAT
-    if (room.expiredAt < new Date())
+    if (room.expiredAt < new Date()) {
       throw new WsGoneException('Room has expired');
+    }
 
     await clientSocket.join(roomCode);
 
@@ -99,6 +100,7 @@ export class PollingGateway
 
   @OnEvent('message.received')
   async handleBrokerMessage(payload: SubmitPollingDto & { id: string }) {
+    this.logger.log(`Message Received on port ${process.env.PORT}`);
     const pollingData = await this.pollingService.getPollingVoteDataByCode(
       payload.room,
     );
