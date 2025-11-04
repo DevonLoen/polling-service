@@ -20,9 +20,11 @@ import { PollingService } from '../services/polling.service';
 import { TransformResponseInterceptor } from '@app/interceptors/transform-response.interceptor';
 import {
   CreatePollingDataResponse,
-  createPollingResponse,
+  CreatePollingResponse,
+  GetMyPollingsResponse,
+  GetPollingById,
+  GetPollingByIdResponse,
   MyPollingChoice,
-  PollingVoteData,
 } from '../classes/polling,response';
 import { JwtPayload } from '@app/interfaces/jwt-payload.interface';
 import { CurrentUser } from '@app/decorators/current-user.decorator';
@@ -37,7 +39,7 @@ export class PollingController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'The polling has been successfully created.',
-    type: createPollingResponse,
+    type: CreatePollingResponse,
   })
   @ApiOperation({
     summary: 'Create Polling',
@@ -69,25 +71,24 @@ Creates a new polling with its associated options.
 
   @ApiResponse({
     status: HttpStatus.OK,
-    type: PollingVoteData,
+    type: GetPollingByIdResponse,
   })
   @ApiOperation({
     summary: 'Get Polling Vote Data by Polling Code',
   })
   @UseInterceptors(TransformResponseInterceptor)
-  @Get('data/:code')
+  @Get('code/:code')
   async getPollingVoteDataById(
     @Param('code') pollingCode: string,
-  ): Promise<PollingVoteData[]> {
-    const poll =
-      await this.pollingService.getPollingVoteDataByCode(pollingCode);
+  ): Promise<GetPollingById> {
+    const poll = await this.pollingService.getPollingAndDataByCode(pollingCode);
     return poll;
   }
 
   @ApiBearerAuth()
   @ApiResponse({
     status: HttpStatus.OK,
-    type: PollingVoteData,
+    type: MyPollingChoice,
   })
   @ApiOperation({
     summary: 'Get My Polling Choice by Polling Code',
@@ -103,5 +104,24 @@ Creates a new polling with its associated options.
       currentUser.id,
     );
     return poll;
+  }
+
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: GetMyPollingsResponse,
+  })
+  @ApiOperation({
+    summary: 'Get My Pollings',
+    description: '',
+  })
+  @UseInterceptors(TransformResponseInterceptor)
+  @UseGuards(AuthenticateGuard)
+  @Get('my-pollings')
+  async getMyPollings(
+    @CurrentUser() currentUser: JwtPayload,
+  ): Promise<CreatePollingDataResponse[]> {
+    const myPollings = await this.pollingService.getMyPollings(currentUser.id);
+    return myPollings;
   }
 }

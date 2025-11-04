@@ -33,6 +33,7 @@ import { JwtModule } from '@nestjs/jwt';
       synchronize: true,
       migrationsRun: false,
       logger: 'advanced-console',
+      poolSize: 3,
       extra: {
         timezone: process.env.DB_TIMEZONE || 'Asia/Jakarta',
       },

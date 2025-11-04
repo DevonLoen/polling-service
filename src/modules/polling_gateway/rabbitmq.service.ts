@@ -75,13 +75,16 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
     }
 
     try {
+      this.logger.log(`Sent message to exchange '${this.exchangeName}'`);
       await this.channelWrapper.publish(
         this.exchangeName,
         '',
         Buffer.from(JSON.stringify(message)),
         { persistent: true },
       );
-      this.logger.log(`Sent message to exchange '${this.exchangeName}'`);
+      this.logger.log(
+        `Successfully Sent message to exchange '${this.exchangeName}'`,
+      );
     } catch (error) {
       this.logger.error('Failed to send message', error);
     }

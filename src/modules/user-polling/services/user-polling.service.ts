@@ -8,8 +8,10 @@ import { PollingService } from '@app/modules/polling/services/polling.service';
 import { ErrorCode } from '@app/enums/error-code';
 import {
   WsConflictException,
+  WsGoneException,
   WsNotFoundException,
 } from '@app/exceptions/websocket.exception';
+import { date } from 'joi';
 
 @Injectable()
 export class UserPollingService {
@@ -31,6 +33,12 @@ export class UserPollingService {
       await this.pollingService.getMyPollingChoiceByCode(roomCode, userId);
     if (checkUserPollExistence) {
       throw new WsConflictException('You already make a Poll');
+    }
+
+    const room = await this.pollingService.findPollingByCode(roomCode);
+    // Cek jika waktu kedaluwarsa SUDAH LEWAT
+    if (room.expiredAt < new Date()) {
+      throw new WsGoneException('Room has expired');
     }
 
     let createdUserPoll: UserPolling;

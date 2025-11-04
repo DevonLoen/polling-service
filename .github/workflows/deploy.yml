@@ -1,0 +1,84 @@
+name: Deploy to EC2
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'dev'
+        type: choice
+        options: [dev, staging]
+
+env:
+  CONTAINER_NAME: poll_app
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Get ECR registry URI
+        id: ecr-registry
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          REGISTRY="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+          echo "registry=${REGISTRY}" >> $GITHUB_OUTPUT
+
+      - name: Set tag version
+        id: set-tag
+        run: |
+          TAG_VERSION=${GITHUB_REF_NAME#v}
+          echo "version=${TAG_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+            # Use expanded variables from GitHub runner
+            IMAGE_TO_PULL="${{ steps.ecr-registry.outputs.registry }}/${{ secrets.ECR_REPOSITORY_NAME }}:${{ steps.set-tag.outputs.version }}"
+
+            echo "Deploying: ${IMAGE_TO_PULL}"
+
+            # ECR Login
+            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
+              docker login --username AWS --password-stdin "${{ steps.ecr-registry.outputs.registry }}"
+
+            # Update container
+            docker pull "${IMAGE_TO_PULL}"
+            docker stop ${{ env.CONTAINER_NAME }} || true
+            docker rm ${{ env.CONTAINER_NAME }} || true
+            docker run -d \
+              --name ${{ env.CONTAINER_NAME }} \
+              --network polling-app-network \
+              -p 8000:8000 \
+              -e DB_PORT=${{ secrets.DB_PORT }} \
+              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -e DB_NAME=${{ secrets.DB_NAME }} \
+              -e DB_USER=${{ secrets.DB_USER }} \
+              -e DB_HOST=${{ secrets.EC2_HOST }} \
+              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
+              -e USER_EMAIL=${{ secrets.USER_EMAIL }} \
+              -e USER_PASS=${{ secrets.USER_PASS }} \
+              -e PORT=${{ secrets.PORT }} \
+              -e RABBITMQ_URL=${{ secrets.RABBITMQ_URL }} \
+              -e RABBITMQ_ORDER_EXCHANGE=${{ secrets.RABBITMQ_ORDER_EXCHANGE }} \
+              "${IMAGE_TO_PULL}"
+
+            # Cleanup
+            docker image prune -a -f
+            echo "Deployment successful!"
