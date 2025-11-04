@@ -1,6 +1,6 @@
 # Polling Service for Mata Kuliah DevOps
 
-This guide will walk you through setting up and running the project locally.
+This guide will walk you through setting up and running the project locally
 
 ---
 
@@ -12,8 +12,8 @@ Follow these instructions to get a copy of the project up and running on your lo
 
 Before you begin, ensure you have the following installed on your system:
 
-* **Node.js** (v18.x or later recommended) - [Download & Install Node.js](https://nodejs.org/en/download/)
-* **Docker & Docker Compose** - [Install Docker](https://docs.docker.com/engine/install/)
+- **Node.js** (v18.x or later recommended) - [Download & Install Node.js](https://nodejs.org/en/download/)
+- **Docker & Docker Compose** - [Install Docker](https://docs.docker.com/engine/install/)
 
 ---
 
